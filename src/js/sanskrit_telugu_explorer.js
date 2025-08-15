@@ -119,22 +119,10 @@ let sessionState = {
 let carouselIndex = 0;
 let voices = []; // To store available speech synthesis voices
 let lastInteractionSource = 'grid';
-
-const vowelsGrid = document.getElementById('vowels-grid');
-const consonantsGrid = document.getElementById('consonants-grid');
-const vowelsTitle = document.getElementById('vowels-title');
-const consonantsTitle = document.getElementById('consonants-title');
-const detailView = document.getElementById('detail-view');
-const mapViewBtn = document.getElementById('mapViewBtn');
-const listViewBtn = document.getElementById('listViewBtn');
-const carouselSection = document.getElementById('carousel-section');
-const carouselTrack = document.getElementById('carousel-track');
-const carouselPrevBtn = document.getElementById('carousel-prev');
-const carouselNextBtn = document.getElementById('carousel-next');
-const saveBtn = document.getElementById('saveBtn');
-const loadBtn = document.getElementById('loadBtn');
-const sessionStatusEl = document.getElementById('session-status');
-const themeSwitcher = document.getElementById('theme-switcher');
+// DOM elements will be wired during init()
+let vowelsGrid, consonantsGrid, vowelsTitle, consonantsTitle, detailView;
+let mapViewBtn, listViewBtn, carouselSection, carouselTrack, carouselPrevBtn, carouselNextBtn;
+let saveBtn, loadBtn, sessionStatusEl, themeSwitcher;
 
 // --- Speech Synthesis Setup ---
 function populateVoiceList() {
@@ -453,14 +441,14 @@ function updateCarouselPosition() {
     carouselTrack.style.transform = `translateX(${offset}px)`;
 }
 
-carouselPrevBtn.addEventListener('click', () => {
+carouselPrevBtn && carouselPrevBtn.addEventListener('click', () => {
     if (carouselIndex > 0) {
         carouselIndex--;
         updateCarouselPosition();
     }
 });
 
-carouselNextBtn.addEventListener('click', () => {
+carouselNextBtn && carouselNextBtn.addEventListener('click', () => {
     const itemWidth = 90;
     const trackWidth = sessionState[currentLang].visited.length * itemWidth;
     const containerWidth = carouselTrack.parentElement.offsetWidth;
@@ -470,13 +458,6 @@ carouselNextBtn.addEventListener('click', () => {
     }
 });
 
-
-document.getElementById('sanskritBtn').addEventListener('click', () => renderLanguage('sanskrit'));
-document.getElementById('teluguBtn').addEventListener('click', () => renderLanguage('telugu'));
-mapViewBtn.addEventListener('click', () => setViewMode('map'));
-listViewBtn.addEventListener('click', () => setViewMode('list'));
-
-// --- Session Management ---
 function saveSession() {
     sessionState.theme = themeSwitcher.value;
     localStorage.setItem('languageLearningSession', JSON.stringify(sessionState));
@@ -504,10 +485,6 @@ function loadSession() {
     }
 }
 
-saveBtn.addEventListener('click', saveSession);
-loadBtn.addEventListener('click', loadSession);
-// --- End Session Management ---
-
 // --- Theme Management ---
 function setTheme(themeName) {
     document.body.className = 'bg-main text-main'; // Reset classes
@@ -518,26 +495,78 @@ function setTheme(themeName) {
     sessionState.theme = themeName;
 }
 
-themeSwitcher.addEventListener('change', (e) => setTheme(e.target.value));
-// --- End Theme Management ---
-
-
-// Close overlay when clicking outside
-document.body.addEventListener('click', (event) => {
+function closeOverlayIfClickedOutside(event) {
     const overlay = document.getElementById('mindmap-overlay');
     if (overlay && !overlay.contains(event.target) && !event.target.closest('.carousel-item')) {
         overlay.remove();
     }
-});
+}
 
-window.onload = () => {
-    renderLanguage('sanskrit');
-    setViewMode('map'); // Set initial view
-};
-    
-window.onresize = () => {
+function handleResize() {
      if (activeCharData && viewMode === 'map') {
         showCharacterDetails(activeCharData, activeCharType, lastInteractionSource);
      }
      updateCarouselPosition();
-};
+}
+
+// Public init function for module consumers
+export function init() {
+    // Wire DOM elements
+    vowelsGrid = document.getElementById('vowels-grid');
+    consonantsGrid = document.getElementById('consonants-grid');
+    vowelsTitle = document.getElementById('vowels-title');
+    consonantsTitle = document.getElementById('consonants-title');
+    detailView = document.getElementById('detail-view');
+    mapViewBtn = document.getElementById('mapViewBtn');
+    listViewBtn = document.getElementById('listViewBtn');
+    carouselSection = document.getElementById('carousel-section');
+    carouselTrack = document.getElementById('carousel-track');
+    carouselPrevBtn = document.getElementById('carousel-prev');
+    carouselNextBtn = document.getElementById('carousel-next');
+    saveBtn = document.getElementById('saveBtn');
+    loadBtn = document.getElementById('loadBtn');
+    sessionStatusEl = document.getElementById('session-status');
+    themeSwitcher = document.getElementById('theme-switcher');
+
+    // Speech voices
+    populateVoiceList();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = populateVoiceList;
+    }
+
+    // Button wiring
+    document.getElementById('sanskritBtn').addEventListener('click', () => renderLanguage('sanskrit'));
+    document.getElementById('teluguBtn').addEventListener('click', () => renderLanguage('telugu'));
+    mapViewBtn && mapViewBtn.addEventListener('click', () => setViewMode('map'));
+    listViewBtn && listViewBtn.addEventListener('click', () => setViewMode('list'));
+
+    carouselPrevBtn && carouselPrevBtn.addEventListener('click', () => {
+        if (carouselIndex > 0) {
+            carouselIndex--;
+            updateCarouselPosition();
+        }
+    });
+
+    carouselNextBtn && carouselNextBtn.addEventListener('click', () => {
+        const itemWidth = 90;
+        const trackWidth = sessionState[currentLang].visited.length * itemWidth;
+        const containerWidth = carouselTrack.parentElement.offsetWidth;
+        if (trackWidth > containerWidth && (carouselIndex + 1) * itemWidth < trackWidth - containerWidth + itemWidth) {
+             carouselIndex++;
+             updateCarouselPosition();
+        }
+    });
+
+    saveBtn && saveBtn.addEventListener('click', saveSession);
+    loadBtn && loadBtn.addEventListener('click', loadSession);
+    themeSwitcher && themeSwitcher.addEventListener('change', (e) => setTheme(e.target.value));
+
+    document.body.addEventListener('click', closeOverlayIfClickedOutside);
+    window.addEventListener('resize', handleResize);
+
+    // Initial render
+    renderLanguage('sanskrit');
+    setViewMode('map');
+}
+
+export { languageData };
