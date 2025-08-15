@@ -16,6 +16,6 @@
 | Bhakti       | భక్తి           | bhakti                  | भक्ती                | bhakti                     | Devotional love and surrender toward the Divine |
 
 \* **Telugu transliteration** follows a simple phonetic rendering (Latin letters) of the Telugu spelling.  
-† **Sanskrose transliteration** uses IAST (International Alphabet of Sanskrit Transliteration).  
+† **Sanskrit transliteration** uses IAST (International Alphabet of Sanskrit Transliteration).  
 
 All meanings are concise summaries intended for a quick reference.
