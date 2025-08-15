@@ -1,4 +1,10 @@
 
-# LanguageExplorer
+# Language Explorer
 
-This repository contains a small static demo in `src/` which can be run with a simple static server. See `src/README.md` for instructions.
+## Sanskrit & Telugu Explorer
+
+![alt text](images/sanskrit_telugu_explorer_001.png)
+
+![alt text](images/sanskrit_telugu_explorer_002.png)
+
+![alt text](images/sanskrit_telugu_explorer_003.png)
